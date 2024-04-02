@@ -7,8 +7,7 @@ import pickle
 # Constants
 HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0'}
 BASE_URL = "https://www.saramin.co.kr/zf_user/jobs/list/job-category"
-KEYWORDS = {'전산총무': 415, '자동차': 2218}
-
+KEYWORDS = {'전산총무': 415, '자동차': 2218, '경영지원' : 429}
 # Function to fetch and parse job data
 def fetch_job_data(keyword_code, pages=2):
     session = requests.Session()
@@ -50,7 +49,7 @@ def process_job_postings(data, keyword):
             item_list.append(item)
     
     df = pd.DataFrame(item_list)
-    df = df.apply(process_deadline, xis=1)
+    df = df.apply(process_deadline, axis=1)
     df.set_index("job_idx", inplace=True)
     return df
 
@@ -82,7 +81,10 @@ def load_dataframes():
         with open('df_combined.pickle', 'rb') as file:
             df_combined = pickle.load(file)
     except FileNotFoundError:
-        df_combined = pd.DataFrame()  # Define your combined DataFrame structure
+        df_combined = pd.DataFrame(columns=['career_info', 'company_name', 'company_sn', 'deadline',
+       'education_info', 'is_headhunting', 'job_link', 'job_sectors',
+       'job_title', 'modified', 'resistered', 'support_date', 'update',
+       'work_place'])  # Define your combined DataFrame structure
 
     try:
         with open('df_key.pickle', 'rb') as file:
@@ -100,12 +102,13 @@ def update_combined_dataframe(df_combined, df_new):
     print("The number of columns is 14.")
     return df_combined
 
-def update_keyword_dataframe(df_key, df_new):
+def update_keyword_dataframe(df_key_old, df_new):
     # Your logic to update df_key with new keywords from df_new
     df_key = df_new[['job_sectors']]
     df_key.reset_index(inplace=True)
     df_key = df_key.explode('job_sectors', ignore_index=True)
-    df_key.drop_duplicates(inplace=True)
+    df_key = pd.concat([df_key, df_key_old], ignore_index=True)
+    df_key.drop_duplicates(subset=['job_idx', 'job_sectors'], inplace=True)
     return df_key
 
 def save_dataframes(df_combined, df_key):
