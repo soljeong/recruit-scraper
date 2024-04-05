@@ -7,16 +7,20 @@ import pickle
 # Constants
 HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0'}
 BASE_URL = "https://www.saramin.co.kr/zf_user/jobs/list/job-category"
-KEYWORDS = {'전산총무': 415, '자동차': 2218, '경영지원' : 429}
+KEYWORDS = {
+            '전산총무': 415, 
+            # '자동차': 2218, 
+            '경영지원' : 429
+            }
 # Function to fetch and parse job data
-def fetch_job_data(keyword_code, pages=2):
+def fetch_job_data(keyword_code=None, cat_mcls=None, pages=2):
     session = requests.Session()
     data = []
 
     for page in range(1, pages + 1):
         payload = {
-            'cat_mcls': None,
-            'cat_kewd': keyword_code,
+            'cat_mcls': cat_mcls,
+            'cat_kewd': None if cat_mcls else keyword_code,
             'page': page,
             'page_count': 1000,
             'sort': 'RD'
