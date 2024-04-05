@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import pickle
-
+# https://www.saramin.co.kr/zf_user/jobs/list/job-category?cat_mcls=2&panel_type=&search_optional_item=n&search_done=y&panel_count=y&preview=y
 # Constants
 HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0'}
 BASE_URL = "https://www.saramin.co.kr/zf_user/jobs/list/job-category"
@@ -14,7 +14,15 @@ def fetch_job_data(keyword_code, pages=2):
     data = []
 
     for page in range(1, pages + 1):
-        response = session.get(f"{BASE_URL}?cat_kewd={keyword_code}&page={page}&page_count=1000&sort=RD", headers=HEADERS)
+        payload = {
+            'cat_mcls': None,
+            'cat_kewd': keyword_code,
+            'page': page,
+            'page_count': 1000,
+            'sort': 'RD'
+        }
+        response = session.get(BASE_URL, params=payload, headers=HEADERS)
+
         if response.status_code == 200:
             data.append(response.text)
         else:
@@ -116,13 +124,15 @@ def save_dataframes(df_combined, df_key):
         pickle.dump(df_combined, file)
     with open('df_key.pickle', 'wb') as file:
         pickle.dump(df_key, file)
-
+# %%
 # Process and update data for each keyword
-for keyword, code in KEYWORDS.items():
-    df_combined, df_key = load_dataframes()
-    data = fetch_job_data(code)
-    df_new = process_job_postings(data, keyword)
-    df_combined = update_combined_dataframe(df_combined, df_new)
-    df_key = update_keyword_dataframe(df_key, df_new)
-    save_dataframes(df_combined, df_key)
+if __name__ == "__main__":
+
+    for keyword, code in KEYWORDS.items():
+        df_combined, df_key = load_dataframes()
+        data = fetch_job_data(code)
+        df_new = process_job_postings(data, keyword)
+        df_combined = update_combined_dataframe(df_combined, df_new)
+        df_key = update_keyword_dataframe(df_key, df_new)
+        save_dataframes(df_combined, df_key)
 
