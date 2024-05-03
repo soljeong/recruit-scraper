@@ -7,3 +7,4 @@ gspread-dataframe
 seaborn
 matplotlib
 jupyter
+selenium

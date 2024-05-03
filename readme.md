@@ -17,6 +17,9 @@
 - 목록에 키워드가 표시되긴 하는데, 5개 까지만
 - 5개가 어떻게 결정되는지는 모르겠음
 
-## 메타데이터
+## 메타데이터 : scrape_rec_options.py
 
 - 카테고리와 키워드 테이블
+- 페이지 로드 된 뒤에 js에서 searchPanelArgs.options 오브젝트
+- 요청을 어디로 보내는지 몰라서 셀레니움 사용
+- searchPanelArgs.options.json 파일로 저장
