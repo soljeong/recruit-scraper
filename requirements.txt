@@ -1,0 +1,9 @@
+requests
+bs4
+lxml
+tqdm
+pandas
+gspread-dataframe
+seaborn
+matplotlib
+jupyter
